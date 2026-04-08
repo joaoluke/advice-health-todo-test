@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: advice-health-todo-backend
+    env: python
+    buildCommand: "cd backend && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    startCommand: "cd backend && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: advice-health-todo-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: web
+    name: advice-health-todo-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: advice-health-todo-backend
+          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: advice-health-todo-db
+    databaseName: todolist_db
+    user: todouser
