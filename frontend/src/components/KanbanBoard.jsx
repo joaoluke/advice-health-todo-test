@@ -1,12 +1,15 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, Circle, Tag, Share2, Trash2 } from 'lucide-react';
 
 const KanbanBoard = ({ tasks, toggleTask, deleteTask, onDragEnd }) => {
+  const { t } = useTranslation();
+
   const columns = {
-    'TODO': { id: 'TODO', title: 'To Do', items: [] },
-    'IN_PROGRESS': { id: 'IN_PROGRESS', title: 'In Progress', items: [] },
-    'DONE': { id: 'DONE', title: 'Done', items: [] },
+    'TODO': { id: 'TODO', title: t('toDoStatus'), items: [] },
+    'IN_PROGRESS': { id: 'IN_PROGRESS', title: t('inProgressStatus'), items: [] },
+    'DONE': { id: 'DONE', title: t('completedStatus'), items: [] },
   };
 
   tasks.forEach((task) => {

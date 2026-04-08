@@ -1,7 +1,10 @@
 import React from 'react';
-import { Trophy, Star } from 'lucide-react';
+import { Trophy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const GamificationHeader = ({ profile }) => {
+  const { t } = useTranslation();
+
   if (!profile) return null;
 
   const { xp } = profile;
@@ -15,7 +18,7 @@ const GamificationHeader = ({ profile }) => {
         </div>
         <div className="flex flex-col">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Lvl {profile.level}
+            {t('level')} {profile.level}
           </span>
           <span className="text-sm font-medium text-foreground">
             XP: {profile.xp}
@@ -26,7 +29,7 @@ const GamificationHeader = ({ profile }) => {
       <div className="flex w-32 flex-col gap-1 md:w-48">
         <div className="flex justify-between text-[10px] text-muted-foreground">
           <span>{profile.xp} XP</span>
-          <span>Next Level</span>
+          <span>{t('nextLevel')}</span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
           <div

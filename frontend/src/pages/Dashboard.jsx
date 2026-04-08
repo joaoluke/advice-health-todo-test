@@ -83,7 +83,7 @@ const Dashboard = () => {
                 : 'text-muted-foreground hover:bg-secondary'
             }`}
           >
-            <LayoutList size={16} /> Lista Rápida
+            <LayoutList size={16} /> {t('quickList')}
           </button>
           <button
             onClick={() => setActiveTab('board')}
@@ -93,7 +93,7 @@ const Dashboard = () => {
                 : 'text-muted-foreground hover:bg-secondary'
             }`}
           >
-            <LayoutDashboard size={16} /> Kanban Board
+            <LayoutDashboard size={16} /> {t('kanbanBoard')}
           </button>
           <button
             onClick={() => setActiveTab('analytics')}
@@ -103,14 +103,14 @@ const Dashboard = () => {
                 : 'text-muted-foreground hover:bg-secondary'
             }`}
           >
-            <BarChart3 size={16} /> Analytics
+            <BarChart3 size={16} /> {t('analytics')}
           </button>
         </div>
       </div>
 
       {loading ? (
         <p className="p-12 text-center text-muted-foreground">
-          Carregando interface...
+          {t('loadingInterface')}
         </p>
       ) : (
         <>
