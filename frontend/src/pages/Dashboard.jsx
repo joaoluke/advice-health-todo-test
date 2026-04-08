@@ -21,8 +21,11 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [loading, setLoading] = useState(true);
   const [suggesting, setSuggesting] = useState(false);
+  const [addingCategory, setAddingCategory] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -43,13 +46,37 @@ const Dashboard = () => {
     }
   };
 
+  const addCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    setAddingCategory(true);
+    try {
+      const res = await api.post('/todos/categories/', { name: newCategoryName });
+      setCategories([...categories, res.data]);
+      setNewCategoryName('');
+      // Automatically select the new category
+      setSelectedCategory(res.data.id);
+    } catch (error) {
+      console.error('Error adding category', error);
+    } finally {
+      setAddingCategory(false);
+    }
+  };
+
   const addTask = async (e) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
+    
+    const payload = { title: newTaskTitle };
+    if (selectedCategory) {
+      payload.category_id = selectedCategory;
+    }
+
     try {
-      const res = await api.post('/todos/tasks/', { title: newTaskTitle });
+      const res = await api.post('/todos/tasks/', payload);
       setTasks([res.data, ...tasks]);
       setNewTaskTitle('');
+      setSelectedCategory('');
     } catch (error) {
       console.error('Error adding task', error);
     }
@@ -106,51 +133,86 @@ const Dashboard = () => {
       </header>
 
       <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-8 md:grid-cols-4">
-        <aside className="h-fit rounded-2xl border border-border bg-card p-6 shadow-sm transition-colors md:col-span-1">
-          <h2 className="mb-4 text-lg font-medium text-foreground">
-            {t('categories')}
-          </h2>
-          {categories.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('noCategories')}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {categories.map((cat) => (
-                <li
-                  key={cat.id}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <Tag size={16} className="text-primary" /> {cat.name}
-                </li>
-              ))}
-            </ul>
-          )}
+        <aside className="flex h-fit flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm transition-colors md:col-span-1">
+          <div>
+            <h2 className="mb-4 text-lg font-medium text-foreground">
+              {t('categories')}
+            </h2>
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('noCategories')}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {categories.map((cat) => (
+                  <li
+                    key={cat.id}
+                    className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Tag size={16} className="text-primary" /> {cat.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          
+          <form onSubmit={addCategory} className="flex flex-col gap-2 border-t border-border pt-4">
+            <input
+              type="text"
+              className="w-full rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm text-foreground outline-none transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+              placeholder={t('newCategory')}
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+            />
+            <button
+              type="submit"
+              disabled={addingCategory}
+              className="flex items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80 disabled:opacity-70"
+            >
+              <Plus size={16} /> {addingCategory ? '...' : t('addCategoryBtn')}
+            </button>
+          </form>
         </aside>
 
-        <section className="rounded-2xl border border-border bg-card p-8 shadow-sm transition-colors md:col-span-3">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row">
-            <form onSubmit={addTask} className="flex flex-1 gap-4">
-              <input
-                type="text"
-                className="w-full flex-1 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
-                placeholder={t('whatNeedsToBeDone')}
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-              />
-              <button
-                type="submit"
-                className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:-translate-y-[1px] hover:bg-primary/90"
-              >
-                <Plus size={18} /> {t('add')}
-              </button>
+        <section className="h-fit rounded-2xl border border-border bg-card p-8 shadow-sm transition-colors md:col-span-3">
+          <div className="mb-8 flex flex-col gap-4">
+            <form onSubmit={addTask} className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:gap-4">
+                <input
+                  type="text"
+                  className="w-full flex-1 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+                  placeholder={t('whatNeedsToBeDone')}
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-secondary/30 px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 sm:w-48"
+                >
+                  <option value="">{t('selectCategory')}</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:-translate-y-[1px] hover:bg-primary/90"
+                >
+                  <Plus size={18} /> {t('add')}
+                </button>
+                <button
+                  type="button"
+                  disabled={suggesting}
+                  onClick={suggestTask}
+                  className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-secondary px-6 py-3 font-medium text-secondary-foreground transition-all hover:bg-secondary/80 disabled:opacity-70"
+                >
+                  {suggesting ? '💡' : '💡'}
+                </button>
+              </div>
             </form>
-            <button
-              type="button"
-              disabled={suggesting}
-              onClick={suggestTask}
-              className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-secondary px-6 py-3 font-medium text-secondary-foreground transition-all hover:bg-secondary/80 disabled:opacity-70"
-            >
-              {suggesting ? t('suggesting') : t('suggestTask')}
-            </button>
           </div>
 
           {loading ? (
@@ -187,11 +249,18 @@ const Dashboard = () => {
                         <Circle size={22} />
                       )}
                     </button>
-                    <span
-                      className={`text-foreground ${task.is_completed ? 'text-muted-foreground line-through' : ''}`}
-                    >
-                      {task.title}
-                    </span>
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-foreground ${task.is_completed ? 'text-muted-foreground line-through' : ''}`}
+                      >
+                        {task.title}
+                      </span>
+                      {task.category && (
+                        <span className="mt-1 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-primary">
+                          <Tag size={10} /> {task.category.name}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
