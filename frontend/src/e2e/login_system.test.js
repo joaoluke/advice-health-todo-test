@@ -28,7 +28,7 @@ describe('Login & Dashboard E2E Tests (Selenium)', () => {
   it('deve realizar login e ser redirecionado para o dashboard', async () => {
     try {
       await driver.get('http://localhost:5173/login');
-    } catch (e) {
+    } catch {
       console.warn("Is the frontend server running at localhost:5173?");
     }
 

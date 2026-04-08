@@ -36,7 +36,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if hasattr(new_task.owner, 'profile'):
             if not old_task.is_completed and new_task.is_completed:
                 new_task.owner.profile.add_xp(10)
-                new_task.status = 'DONE' # sincando status
+                new_task.status = 'DONE'
                 new_task.save()
             elif new_task.status == 'DONE' and old_task.status != 'DONE':
                 new_task.owner.profile.add_xp(10)

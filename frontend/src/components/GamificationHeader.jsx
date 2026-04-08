@@ -4,9 +4,8 @@ import { Trophy, Star } from 'lucide-react';
 const GamificationHeader = ({ profile }) => {
   if (!profile) return null;
 
-  const xpRequiredForNextLevel = profile.level * 100;
-  const currentLevelXp = profile.xp % 100;
-  const progressPercent = Math.min(((profile.xp % 100) / 100) * 100, 100);
+  const { xp } = profile;
+  const progressPercent = Math.min(((xp % 100) / 100) * 100, 100);
 
   return (
     <div className="flex items-center gap-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 px-4 py-2 border border-purple-500/20">

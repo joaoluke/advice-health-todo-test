@@ -1,32 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Lock, User } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import ThemeToggle from '../components/ThemeToggle';
+import { useLogin } from '../hooks/useLogin';
 
 const Login = () => {
   const { t } = useTranslation();
-  const { login } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await login(username, password);
-    } catch {
-      setError(t('invalidLogin'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    error,
+    loading,
+    handleSubmit,
+  } = useLogin();
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center bg-background">

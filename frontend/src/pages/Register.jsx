@@ -1,33 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Lock, User, Mail } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import ThemeToggle from '../components/ThemeToggle';
+import { useRegister } from '../hooks/useRegister';
 
 const Register = () => {
   const { t } = useTranslation();
-  const { register } = useAuth();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await register(username, email, password);
-    } catch (err) {
-      setError(err.response?.data?.username?.[0] || t('regError'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    username,
+    setUsername,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    loading,
+    handleSubmit,
+  } = useRegister();
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center bg-background">
