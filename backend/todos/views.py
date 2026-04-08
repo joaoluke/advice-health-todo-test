@@ -18,7 +18,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['is_completed', 'category']
+    filterset_fields = ['is_completed', 'status', 'category']
     search_fields = ['title', 'description']
     ordering_fields = ['created_at', 'title']
 
@@ -28,6 +28,45 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        old_task = self.get_object()
+        new_task = serializer.save()
+        
+        if hasattr(new_task.owner, 'profile'):
+            if not old_task.is_completed and new_task.is_completed:
+                new_task.owner.profile.add_xp(10)
+                new_task.status = 'DONE' # sincando status
+                new_task.save()
+            elif new_task.status == 'DONE' and old_task.status != 'DONE':
+                new_task.owner.profile.add_xp(10)
+                new_task.is_completed = True
+                new_task.save()
+
+    @action(detail=False, methods=['get'])
+    def analytics(self, request):
+        user = request.user
+        tasks = Task.objects.filter(owner=user) | Task.objects.filter(shared_with=user)
+        total = tasks.count()
+        completed = tasks.filter(is_completed=True).count()
+        todo = tasks.filter(status='TODO').count()
+        in_progress = tasks.filter(status='IN_PROGRESS').count()
+        
+        categories = Category.objects.filter(owner=user)
+        cat_stats = []
+        for cat in categories:
+            cat_stats.append({
+                'name': cat.name,
+                'count': tasks.filter(category=cat).count()
+            })
+            
+        return Response({
+            'total': total,
+            'completed': completed,
+            'todo': todo,
+            'in_progress': in_progress,
+            'categories': cat_stats
+        })
 
     @action(detail=False, methods=['post'], url_path='suggest')
     def suggest_task(self, request):

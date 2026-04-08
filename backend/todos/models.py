@@ -14,7 +14,13 @@ class Category(models.Model):
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
+    STATUS_CHOICES = [
+        ('TODO', 'To Do'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('DONE', 'Done'),
+    ]
     description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='TODO')
     is_completed = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_tasks')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
