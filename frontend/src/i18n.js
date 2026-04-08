@@ -32,6 +32,9 @@ const resources = {
       regError: 'An error occurred during registration.',
       suggestTask: 'Suggest a Task 💡',
       suggesting: 'Suggesting...',
+      newCategory: 'New Category...',
+      addCategoryBtn: 'Create',
+      selectCategory: 'No Category',
     },
   },
   pt: {
@@ -64,6 +67,9 @@ const resources = {
       regError: 'Ocorreu um erro durante o registro.',
       suggestTask: 'Sugira uma Tarefa 💡',
       suggesting: 'Sugerindo...',
+      newCategory: 'Nova Categoria...',
+      addCategoryBtn: 'Criar',
+      selectCategory: 'Sem Categoria',
     },
   },
 };
